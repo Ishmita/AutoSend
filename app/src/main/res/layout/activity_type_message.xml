@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fitsSystemWindows="true"
+    tools:context="com.example.android.autosend.TypeMessage">
+
+    <android.support.v7.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:id="@+id/msg_toolbar"
+        android:background="?attr/colorPrimary"
+        app:layout_scrollFlags="scroll|enterAlways">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/complete_msg"
+            android:background="?android:attr/selectableItemBackground"
+            android:text="DONE"
+            android:textColor="@android:color/white"
+            android:layout_gravity = "center_vertical|right"/>
+    </android.support.v7.widget.Toolbar>
+    <EditText
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:background="@null"
+        android:gravity="center_vertical|start"
+        android:minHeight="?listPreferredItemHeight"
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp"
+        android:paddingLeft="?listPreferredItemPaddingLeft"
+        android:paddingRight="?listPreferredItemPaddingRight"
+        android:id="@+id/message"
+        android:layout_below="@+id/msg_toolbar"
+        android:hint="Type your message here"
+        android:textSize="16sp"/>
+
+</RelativeLayout>
