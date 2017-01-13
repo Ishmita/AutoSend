@@ -1,14 +1,20 @@
 package com.example.android.autosend;
 
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 import com.example.android.autosend.adapter.CardsAdapter;
 import com.example.android.autosend.data.CreateEntry;
@@ -27,6 +33,8 @@ public class CreateFragment extends Fragment {
     private RecyclerView recyclerView;
     private CardsAdapter cardsAdapter;
     private List<CreateEntry> createEntryList;
+    private EditText title;
+    String titleString;
 
     public CreateFragment() {
         // Required empty public constructor
@@ -46,6 +54,8 @@ public class CreateFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_create, container, false);
         recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
+        title = (EditText)view.findViewById(R.id.title_edit_text);
+        addTextWatcher();
         createEntryList = new ArrayList<>();
         cardsAdapter = new CardsAdapter(this.getContext(), createEntryList);
 
@@ -89,6 +99,32 @@ public class CreateFragment extends Fragment {
         cardsAdapter.notifyDataSetChanged();
     }
 
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d("CreateFragment", "onActivityResult");
+        cardsAdapter.onActivityResult(requestCode, resultCode, data);
+    }
+
+
+    public void addTextWatcher() {
+        title.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                titleString = title.getText().toString();
+                cardsAdapter.setTitle(titleString);
+            }
+        });
+    }
 
     /**
      * RecyclerView item decoration - give equal margin around grid item

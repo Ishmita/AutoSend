@@ -5,5 +5,23 @@
         <item name="windowNoTitle">true</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:datePickerDialogTheme">@style/DatePickerDialogTheme</item>
+    </style>
+
+    <style name="DatePickerDialogTheme" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:datePickerStyle">@style/DatePicker</item>
+        <item name="android:colorAccent">@color/colorPrimary</item>
+    </style>
+    <style name="TimepickerDialogTheme" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:timePickerStyle">@style/TimePicker</item>
+        <item name="android:colorAccent">@color/colorPrimary</item>
+    </style>
+
+    <style name="DatePicker" parent="@android:style/Widget.Material.Light.DatePicker">
+        <item name="android:headerBackground">@color/colorPrimary</item>
+    </style>
+
+    <style name="TimePicker" parent="@android:style/Widget.Material.Light.TimePicker">
+        <item name="android:headerBackground">@color/colorPrimary</item>
     </style>
 </resources>

@@ -1,8 +1,7 @@
 package com.example.android.autosend;
 
+import android.content.Intent;
 import android.support.design.widget.TabLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -32,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private static final String TAG = "MainActivity";
     private SectionsPagerAdapter mSectionsPagerAdapter;
+    private Fragment fragment;
 
     /**
      * The {@link ViewPager} that will host the section contents.
@@ -58,8 +58,8 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(mViewPager);
 
 
-    }
 
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -135,9 +135,15 @@ public class MainActivity extends AppCompatActivity {
             // Return a PlaceholderFragment (defined as a static inner class below).
             switch (position) {
                 case 0:
-                    return CreateFragment.newInstance(position + 1);
+                    fragment = CreateFragment.newInstance(position + 1);
+                    return fragment;
+                case 1:
+                    return SavedFragment.newInstance(position +1);
+                case 2:
+                    return SentFragment.newInstance(position +1);
+
             }
-            return PlaceholderFragment.newInstance(position +1);
+            return null;
         }
 
         @Override
@@ -154,9 +160,15 @@ public class MainActivity extends AppCompatActivity {
                 case 1:
                     return "Saved";
                 case 2:
-                    return "Profile";
+                    return "Sent";
             }
             return null;
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        fragment.onActivityResult(requestCode, resultCode, data);
     }
 }
