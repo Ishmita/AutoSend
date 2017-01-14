@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * The {@link ViewPager} that will host the section contents.
      */
-    private ViewPager mViewPager;
+    public static ViewPager mViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -164,6 +164,32 @@ public class MainActivity extends AppCompatActivity {
             }
             return null;
         }
+
+        @Override
+        public int getItemPosition(Object object) {
+            SavedFragment savedFragment=null;
+            CreateFragment createFragment= null;
+            SentFragment sentFragment = null;
+            if(object instanceof SavedFragment) {
+                Log.d(TAG, "instance of SaveFragment");
+                savedFragment = (SavedFragment) object;
+            }else if(object instanceof CreateFragment) {
+                Log.d(TAG, "instance of Create fragment");
+                createFragment = (CreateFragment)object;
+            }else if(object instanceof SentFragment) {
+                sentFragment = (SentFragment)object;
+            }
+            if(savedFragment!=null) {
+                savedFragment.update();
+            }
+            if (createFragment!=null) {
+                createFragment.update();
+            }
+            if (sentFragment!=null) {
+                sentFragment.update();
+            }
+            return super.getItemPosition(object);
+        }
     }
 
     @Override
@@ -171,4 +197,10 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         fragment.onActivityResult(requestCode, resultCode, data);
     }
+
+    public interface Updateable {
+        public void update();
+    }
+
+
 }

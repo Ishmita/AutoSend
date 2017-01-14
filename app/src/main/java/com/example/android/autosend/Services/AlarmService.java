@@ -48,4 +48,10 @@ public class AlarmService {
         Log.d(TAG, "id: "+id);
         return PendingIntent.getBroadcast(context, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
+
+    //delete an alarm
+    public void deleteAlarm(Context context, int id) {
+        AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.cancel(getPendingIntent(context, id));
+    }
 }

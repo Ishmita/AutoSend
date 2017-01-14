@@ -1,48 +1,51 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.example.android.autosend.CreateFragment">
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:layout_marginBottom="8dp">
-        <android.support.design.widget.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="8dp">
-         <EditText
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:hint="Title"
-             android:layout_marginBottom="16dp"
-             android:textSize="16sp"
-             android:fontFamily="sans-serif"
-             android:textColor="#000000"
-             android:textColorHint="#bdbdbd"
-             android:id="@+id/title_edit_text"
-             android:inputType="textCapSentences"/>
-        </android.support.design.widget.TextInputLayout>
-        </LinearLayout>
-    <!-- TODO: Update blank fragment layout -->
-    <android.support.v7.widget.RecyclerView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/recycler_view"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-        android:clipToPadding="false">
-    </android.support.v7.widget.RecyclerView>
-    </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_marginBottom="8dp">
+
+                <android.support.design.widget.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginTop="16dp">
+
+                    <EditText
+                        android:id="@+id/title_edit_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:fontFamily="sans-serif"
+                        android:hint="Title"
+                        android:inputType="textCapSentences"
+                        android:textColor="#000000"
+                        android:textColorHint="#bdbdbd"
+                        android:textSize="16sp" />
+                </android.support.design.widget.TextInputLayout>
+            </LinearLayout>
+            <!-- TODO: Update blank fragment layout -->
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:clipToPadding="false"></android.support.v7.widget.RecyclerView>
+
+        </LinearLayout>
     </ScrollView>
 </FrameLayout>

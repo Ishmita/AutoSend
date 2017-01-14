@@ -44,7 +44,12 @@ public class TypeMessage extends AppCompatActivity {
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         // finally change the color
         window.setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
-
+        //in-case the user selects to edit the message.
+        Intent intent = getIntent();
+        String msg = intent.getStringExtra("previousMsg");
+        if(msg!=null && msg.length()>0) {
+            msgEditText.setText(msg);
+        }
         done.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

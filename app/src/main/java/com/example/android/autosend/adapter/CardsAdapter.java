@@ -31,6 +31,7 @@ import android.widget.ViewSwitcher;
 
 import com.bumptech.glide.Glide;
 import com.example.android.autosend.CreateFragment;
+import com.example.android.autosend.MainActivity;
 import com.example.android.autosend.Services.AlarmService;
 import com.example.android.autosend.Services.DatabaseHandler;
 import com.example.android.autosend.R;
@@ -59,6 +60,7 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
     Integer hour, minute;
     private final static String TAG = "cardsAdapter";
     private static final int REQUEST_CODE = 10;
+    private static final int EDIT_REQUEST_CODE = 2;
     private String message = null;
     Calendar calendar;
     String title;
@@ -122,12 +124,16 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
         holder.actionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(position==0) {
+                if(position == 0) {
                     if (selectedContacts.size() > 0) {
                         showSelectedListDialog();
                     } else {
                         Toast.makeText(mContext, "No contact selected", Toast.LENGTH_SHORT).show();
                     }
+                }else if(position == 1) {
+                    editMessage();
+                }else if(position == 2) {
+                    selectDateTimeDialog();
                 }
             }
         });
@@ -235,6 +241,15 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
         dialog.show();
     }
 
+    public void editMessage() {
+        if(message!=null && message.length()>0) {
+            Intent intent = new Intent(mContext, TypeMessage.class);
+            intent.putExtra("previousMsg", message);
+            ((Activity)mContext).startActivityForResult(intent, EDIT_REQUEST_CODE);
+        }else{
+            Toast.makeText(mContext, "Please write a message first", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     public class FetchContactsTask extends AsyncTask<Void, Integer, Void> {
 
@@ -350,6 +365,8 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
                     alarmService.setAlarm(mContext, alarm);
                 }
             }
+            Toast.makeText(mContext,"Saved", Toast.LENGTH_SHORT).show();
+            MainActivity.mViewPager.getAdapter().notifyDataSetChanged();
         }else {
             Toast.makeText(mContext, "Please specify all details", Toast.LENGTH_SHORT).show();
         }

@@ -26,10 +26,11 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class CreateFragment extends Fragment {
+public class CreateFragment extends Fragment implements MainActivity.Updateable {
 
 
     private static final String ARG_SECTION_NUMBER = "section_number";
+    private static final String TAG = "CreateFragment";
     private RecyclerView recyclerView;
     private CardsAdapter cardsAdapter;
     private List<CreateEntry> createEntryList;
@@ -79,14 +80,14 @@ public class CreateFragment extends Fragment {
                 "Contact",
                 "Message",
                 "Date & Time",
-                "Application"
+                "Save"
         };
 
         String action[] = {
                 "SHOW SELECTED",
                 "EDIT",
                 "CHANGE",
-                "SEND"
+                "AUTO-SEND"
         };
 
         for(int i=0;i<4;i++) {
@@ -124,6 +125,12 @@ public class CreateFragment extends Fragment {
                 cardsAdapter.setTitle(titleString);
             }
         });
+    }
+
+    @Override
+    public void update() {
+        title.setText("");
+        Log.d(TAG, "title should be cleared now in update()");
     }
 
     /**
