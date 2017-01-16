@@ -1,24 +1,39 @@
 package com.example.android.autosend;
 
 
+import android.app.Dialog;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ClickableSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.android.autosend.Services.AlarmService;
 import com.example.android.autosend.Services.DatabaseHandler;
 import com.example.android.autosend.adapter.AlarmsAdapter;
 import com.example.android.autosend.data.Alarm;
 
+import java.io.BufferedInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 
 /**
@@ -61,6 +76,44 @@ public class SavedFragment extends Fragment implements MainActivity.Updateable{
 
         adapter = new AlarmsAdapter(getContext(), savedAlarms, R.layout.alarm_list_item);
         savedAlarmsListView.setAdapter(adapter);
+        savedAlarmsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Alarm alarm = savedAlarms.get(i);
+                Uri myPhotoUri = null;
+                InputStream photo_stream = null;
+                Bitmap my_btmp = null;
+                Dialog messageDetailsDialog = new Dialog(getContext());
+                messageDetailsDialog.setTitle(alarm.getAlarmTitle());
+                messageDetailsDialog.setContentView(R.layout.message_details);
+                messageDetailsDialog.setCancelable(true);
+                CircleImageView imageView = (CircleImageView) messageDetailsDialog.findViewById(R.id.message_contact_photo);
+                TextView name = (TextView) messageDetailsDialog.findViewById(R.id.messaged_contact_name);
+                TextView date = (TextView)messageDetailsDialog.findViewById(R.id.date);
+                TextView message = (TextView) messageDetailsDialog.findViewById(R.id.message_text_view);
+                if(savedAlarms.get(i).getContactPhotoURI()!=null) {
+                    myPhotoUri = Uri.parse(savedAlarms.get(i).getContactPhotoURI());
+                    photo_stream = ContactsContract.Contacts.openContactPhotoInputStream(getContext().getContentResolver(), myPhotoUri);
+                    Log.d(TAG, "" + photo_stream);
+                    BufferedInputStream buf = new BufferedInputStream(photo_stream);
+                    my_btmp = BitmapFactory.decodeStream(buf);
+                }
+
+                if(photo_stream!=null) {
+                    imageView.setImageBitmap(my_btmp);
+                }else{
+                    imageView.setImageResource(R.drawable.contact);
+                }
+                name.setText(savedAlarms.get(i).getContactName());
+                date.setText(savedAlarms.get(i).getDate().substring(0,11)+
+                        "  "+savedAlarms.get(i).getDate().substring(11,19));
+                message.setText(savedAlarms.get(i).getMessage());
+                Window window = messageDetailsDialog.getWindow();
+                window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+                messageDetailsDialog.show();
+            }
+        });
+
         savedAlarmsListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {

@@ -4,11 +4,13 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.ContactsContract;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -30,7 +32,6 @@ import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.bumptech.glide.Glide;
-import com.example.android.autosend.CreateFragment;
 import com.example.android.autosend.MainActivity;
 import com.example.android.autosend.Services.AlarmService;
 import com.example.android.autosend.Services.DatabaseHandler;
@@ -43,6 +44,8 @@ import com.example.android.autosend.data.CreateEntry;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+
+import it.sephiroth.android.library.tooltip.Tooltip;
 
 /**
  * Created by Ishmita on 28-12-2016.
@@ -64,10 +67,14 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
     private String message = null;
     Calendar calendar;
     String title;
+    Activity activity;
+    private Tooltip.TooltipView mCurrentTooltip;
+    int tooltipPosition;
 
     public CardsAdapter(Context mContext, List<CreateEntry> createEntryList){
         this.mContext = mContext;
         this.createEntryList = createEntryList;
+        activity = (Activity)mContext;
     }
 
     public void setTitle(String title) {
@@ -91,7 +98,19 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.contacts_card, parent, false);
-        return new MyViewHolder(view);
+        final MyViewHolder myViewHolder = new MyViewHolder(view);
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(mCurrentTooltip!=null) {
+                    mCurrentTooltip.hide();
+                    mCurrentTooltip = null;
+                }else {
+                    //showTooltip(myViewHolder);
+                }
+            }
+        });
+        return myViewHolder;
     }
 
     @Override
@@ -99,7 +118,17 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
 
         CreateEntry createEntry = createEntryList.get(position);
         holder.heading.setText(createEntry.getHeading());
+        //tooltipPosition = position + 1;
+        //showTooltip(holder, "", 0);
 
+        /*if(tooltipPosition == 1) {
+            //Contacts cards is clicked, so show tooltip on Message card
+            showTooltip(holder, "tooltip position 1" ,9);
+        }else if(tooltipPosition == 2) {
+            showTooltip(holder, "tooltip position 2", 8);
+        }else if(tooltipPosition == 3) {
+            showTooltip(holder, "tooltip position 3", 9);
+        }*/
         holder.actionButton.setText(createEntry.getActionButton());
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -134,6 +163,8 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
                     editMessage();
                 }else if(position == 2) {
                     selectDateTimeDialog();
+                }else if(position == 3) {
+                    Toast.makeText(mContext, "Just save it and forget it!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -192,7 +223,8 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
                     selectedContacts.clear();
                 }
                 selectedContacts.add(filteredList.get(i));
-                Log.d(TAG, "position: " + (i+1) + "name: " + filteredList.get(i).getContactName());
+                Log.d(TAG, "position: " + (i+1) + "name: " + filteredList.get(i).getContactName()+
+                        " uri: "+filteredList.get(i).getContactPhoto());
                 newSelection = false;
             }
         });
@@ -233,8 +265,24 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                selectedContacts.remove(i);
-                adapter.notifyDataSetChanged();
+                final int position = i;
+                AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                builder.setMessage("Are you sure you want to remove?\n");
+                builder.setTitle("Alert");
+                builder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        selectedContacts.remove(position);
+                        adapter.notifyDataSetChanged();
+                    }
+                });
+                builder.show();
                 return false;
             }
         });
@@ -354,8 +402,13 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
                 alarm.setDate("" + year + " " + getMonth(month) + " " + getDay(day) + " " +
                         hour + " " + minute);
                 alarm.setStatus(0);
+                alarm.setContactPhotoURI(contact.getContactPhoto());
+
+                //Saving alarm in database
                 id = (int)databaseHandler.saveAlarm(alarm);
                 alarm.setId(id);
+                Log.d(TAG, "contact uri just before saving: "+contact.getContactPhoto()+
+                        " alarm uri: "+alarm.getContactPhotoURI());
                 Calendar now = Calendar.getInstance();
                 if (calendar.compareTo(now) <= 0) {
                     Toast.makeText(mContext, "Invalid date", Toast.LENGTH_LONG).show();
@@ -366,6 +419,8 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
                 }
             }
             Toast.makeText(mContext,"Saved", Toast.LENGTH_SHORT).show();
+
+            //tell the viewPager to refresh pages.
             MainActivity.mViewPager.getAdapter().notifyDataSetChanged();
         }else {
             Toast.makeText(mContext, "Please specify all details", Toast.LENGTH_SHORT).show();
@@ -375,7 +430,8 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
             Log.d(TAG, "alarmId: " + alarm1.getId()+ " title: " + alarm1.getAlarmTitle()+
                     " contactName: "+alarm1.getContactName()+
                     " date: " + alarm1.getDate()+" msg: "+alarm1.getMessage()+
-                    " number: "+alarm1.getContactNumber());
+                    " number: "+alarm1.getContactNumber()+
+                    " photo uri: "+alarm1.getContactPhotoURI());
         }
     }
 
@@ -433,5 +489,23 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
             default:
                 return ""+day;
         }
+    }
+    public void showTooltip(MyViewHolder myViewHolder, String text, long delay) {
+        Tooltip.make( mContext,
+                new Tooltip.Builder(101)
+                        .anchor(myViewHolder.image.findViewById(R.id.card_image), Tooltip.Gravity.BOTTOM)
+                        .closePolicy(new Tooltip.ClosePolicy()
+                                .insidePolicy(true, false)
+                                .outsidePolicy(true, false), 30000)
+                        .activateDelay(800)
+                        .showDelay(300)
+                        .text(text)
+                        .withStyleId(R.style.ToolTipLayoutDefaultStyle)
+                        .maxWidth(500)
+                        .withArrow(true)
+                        .withOverlay(false)
+                        .floatingAnimation(Tooltip.AnimationBuilder.DEFAULT)
+                        .build()
+        ).show();
     }
 }

@@ -19,6 +19,8 @@ import android.view.ViewGroup;
 
 import android.widget.TextView;
 
+import it.sephiroth.android.library.tooltip.Tooltip;
+
 public class MainActivity extends AppCompatActivity {
 
     /**
@@ -56,8 +58,6 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "Run" + 5);
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-
-
 
     }
 

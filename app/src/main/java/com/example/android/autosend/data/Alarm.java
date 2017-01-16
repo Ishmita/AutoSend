@@ -14,13 +14,14 @@ public class Alarm {
     private String message;
     private String date;
     private int status;
+    private String contactPhotoURI;
 
     public Alarm(){
 
     }
 
     public Alarm(int id, String alarmTitle, String contactName, String contactNumber, String message,
-                 String date, int status) {
+                 String date, int status, String contactPhotoURI) {
         this.id = id;
         this.contactName = contactName;
         this.alarmTitle = alarmTitle;
@@ -28,8 +29,18 @@ public class Alarm {
         this.message = message;
         this.date = date;
         this.status = status;
+        this.contactPhotoURI = contactPhotoURI;
 
     }
+
+    public void setContactPhotoURI(String contactPhotoURI) {
+        this.contactPhotoURI = contactPhotoURI;
+    }
+
+    public String getContactPhotoURI() {
+        return contactPhotoURI;
+    }
+
     public String getAlarmTitle() {
         return alarmTitle;
     }

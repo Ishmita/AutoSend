@@ -22,6 +22,8 @@ import com.example.android.autosend.data.CreateEntry;
 import java.util.ArrayList;
 import java.util.List;
 
+import it.sephiroth.android.library.tooltip.Tooltip;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -58,7 +60,7 @@ public class CreateFragment extends Fragment implements MainActivity.Updateable 
         title = (EditText)view.findViewById(R.id.title_edit_text);
         addTextWatcher();
         createEntryList = new ArrayList<>();
-        cardsAdapter = new CardsAdapter(this.getContext(), createEntryList);
+        cardsAdapter = new CardsAdapter(getContext(), createEntryList);
 
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(this.getContext(), 2);
         recyclerView.setLayoutManager(mLayoutManager);

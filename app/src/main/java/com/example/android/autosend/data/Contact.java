@@ -6,7 +6,7 @@ import java.io.Serializable;
  * Created by Ishmita on 04-01-2017.
  */
 public class Contact implements Serializable {
-    private int contactPhoto;
+    private String contactPhoto;
     private String contactName;
     private String number;
 
@@ -22,7 +22,7 @@ public class Contact implements Serializable {
         return contactName;
     }
 
-    public int getContactPhoto() {
+    public String getContactPhoto() {
         return contactPhoto;
     }
 
@@ -30,7 +30,7 @@ public class Contact implements Serializable {
         this.contactName = contactName;
     }
 
-    public void setContactPhoto(int contactPhoto) {
+    public void setContactPhoto(String contactPhoto) {
         this.contactPhoto = contactPhoto;
     }
 }
