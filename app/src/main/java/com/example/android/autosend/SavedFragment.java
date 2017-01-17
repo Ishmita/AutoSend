@@ -107,7 +107,7 @@ public class SavedFragment extends Fragment implements MainActivity.Updateable{
                 name.setText(savedAlarms.get(i).getContactName());
                 date.setText(savedAlarms.get(i).getDate().substring(0,11)+
                         "  "+savedAlarms.get(i).getDate().substring(11,19));
-                message.setText(savedAlarms.get(i).getMessage());
+                message.setText("\n"+savedAlarms.get(i).getMessage());
                 Window window = messageDetailsDialog.getWindow();
                 window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
                 messageDetailsDialog.show();
@@ -140,7 +140,7 @@ public class SavedFragment extends Fragment implements MainActivity.Updateable{
                     }
                 });
                 builder.show();
-                return false;
+                return true;
             }
         });
         return view;

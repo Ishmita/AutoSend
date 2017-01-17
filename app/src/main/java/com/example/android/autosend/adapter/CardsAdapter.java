@@ -15,11 +15,17 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
+import android.util.SparseBooleanArray;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -59,7 +65,7 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
     ArrayList<Contact> alContacts;
     ArrayList<Contact> selectedContacts = new ArrayList<>();
     boolean newSelection;
-    int count = 0, day=0, month=-1, year=0;
+    int count = 0, day=0, month=-1, year=0,checkedCount = 0;
     Integer hour, minute;
     private final static String TAG = "cardsAdapter";
     private static final int REQUEST_CODE = 10;
@@ -210,7 +216,7 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
         final Dialog contactListDialog = new Dialog(mContext);
         contactListDialog.setContentView(R.layout.contact_list_dialog);
         contactListDialog.setCancelable(true);
-        ListView contactListView = (ListView)contactListDialog.findViewById(R.id.contacts_list_view);
+        final ListView contactListView = (ListView)contactListDialog.findViewById(R.id.contacts_list_view);
         final ContactsListAdapter adapter = new ContactsListAdapter(mContext, R.layout.contact, alContacts);
         Button ok = (Button)contactListDialog.findViewById(R.id.ok_button);
         contactListView.setAdapter(adapter);
@@ -218,16 +224,92 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
         contactListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                SparseBooleanArray clickedItemPositions = contactListView.getCheckedItemPositions();
                 ArrayList<Contact> filteredList = adapter.getFilteredList();
+
+                // Set the TextView text
+                //mTextView.setText("Checked items - ");
+
+                for(int index=0;index<clickedItemPositions.size();index++) {
+                    // Get the checked status of the current item
+                    boolean checked = clickedItemPositions.valueAt(index);
+
+                    if (checked) {
+                        // If the current item is checked
+                        if (newSelection) {
+                            selectedContacts.clear();
+                        }
+                        int delIndex = selectedContacts.indexOf(filteredList.get(clickedItemPositions.keyAt(index)));
+                        if(delIndex==-1) {
+                            selectedContacts.add(filteredList.get(clickedItemPositions.keyAt(index)));
+                        }
+                        Log.d(TAG, "position: " + (clickedItemPositions.keyAt(index)) + "name: " + filteredList.get(clickedItemPositions.keyAt(index)).getContactName() +
+                                " uri: " + filteredList.get(clickedItemPositions.keyAt(index)).getContactPhoto());
+                        newSelection = false;
+                        // /int key = clickedItemPositions.keyAt(index);
+                        //String item = (String) contactListDialog.getItemAtPosition(key);
+                    }else {
+                        int delIndex = selectedContacts.indexOf(filteredList.get(clickedItemPositions.keyAt(index)));
+                        if(delIndex!=-1) {
+                            selectedContacts.remove(delIndex);
+                        }
+                    }
+                }
+                /*ArrayList<Contact> filteredList = adapter.getFilteredList();
                 if(newSelection){
                     selectedContacts.clear();
                 }
                 selectedContacts.add(filteredList.get(i));
                 Log.d(TAG, "position: " + (i+1) + "name: " + filteredList.get(i).getContactName()+
                         " uri: "+filteredList.get(i).getContactPhoto());
-                newSelection = false;
+                newSelection = false;*/
             }
         });
+        /*contactListView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
+        contactListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
+            @Override
+            public void onItemCheckedStateChanged(ActionMode actionMode, int i, long l, boolean b) {
+                checkedCount = contactListView.getCheckedItemCount();
+                //actionMode.setTitle(checkedCount + " Selected");
+                ArrayList<Contact> filteredList = adapter.getFilteredList();
+                if (b) {
+                    if (newSelection) {
+                        selectedContacts.clear();
+                    }
+                    selectedContacts.add(filteredList.get(i));
+                    Log.d(TAG, "position: " + (i + 1) + "name: " + filteredList.get(i).getContactName() +
+                            " uri: " + filteredList.get(i).getContactPhoto());
+                    newSelection = false;
+                } else {
+                    int index = selectedContacts.indexOf(filteredList.get(i));
+                    if(index!= -1) {
+                        selectedContacts.remove(index);
+                    }
+                }
+            }
+
+            @Override
+            public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+                //MenuInflater inflater = actionMode.getMenuInflater();
+                //inflater.inflate(R.menu.contextual_menu, menu);
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+                return false;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode actionMode) {
+
+            }
+        });*/
 
         SearchView searchView = (SearchView)contactListDialog.findViewById(R.id.searchView);
         searchView.setSubmitButtonEnabled(true);

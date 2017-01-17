@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="32dp"
-    android:id="@+id/contact_layout">
+    android:id="@+id/contact_layout"
+    android:background="@drawable/background">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:layout_width="50dp"
