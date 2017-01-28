@@ -15,13 +15,14 @@ public class Alarm {
     private String date;
     private int status;
     private String contactPhotoURI;
+    private int repeatType;
 
     public Alarm(){
 
     }
 
     public Alarm(int id, String alarmTitle, String contactName, String contactNumber, String message,
-                 String date, int status, String contactPhotoURI) {
+                 String date, int status, String contactPhotoURI, int repeatType) {
         this.id = id;
         this.contactName = contactName;
         this.alarmTitle = alarmTitle;
@@ -30,11 +31,20 @@ public class Alarm {
         this.date = date;
         this.status = status;
         this.contactPhotoURI = contactPhotoURI;
+        this.repeatType = repeatType;
 
     }
 
     public void setContactPhotoURI(String contactPhotoURI) {
         this.contactPhotoURI = contactPhotoURI;
+    }
+
+    public int getRepeatType() {
+        return repeatType;
+    }
+
+    public void setRepeatType(int repeatType) {
+        this.repeatType = repeatType;
     }
 
     public String getContactPhotoURI() {

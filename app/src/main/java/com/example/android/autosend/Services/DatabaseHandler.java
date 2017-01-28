@@ -24,7 +24,7 @@ import java.util.TimeZone;
 public class DatabaseHandler extends SQLiteOpenHelper {
 
     private static final String TAG = "DatabaseHandler";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
     private static final String DATABASE_NAME = "autoSend";
     private static final String TABLE_NAME = "alarm";
 
@@ -37,6 +37,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String DATE = "date";
     private static final String STATUS = "status";
     private static final String CONTACT_PHOTO = "photo";
+    private static final String REPEAT_TYPE = "repeatType";
     private Context mContext;
 
     public DatabaseHandler(Context context) {
@@ -56,7 +57,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 MESSAGE + " TEXT," +
                 DATE + " TEXT," +
                 STATUS + " INTEGER," +
-                CONTACT_PHOTO + " VARCHAR(100)" + ")";
+                CONTACT_PHOTO + " VARCHAR(100)," +
+                REPEAT_TYPE + " INTEGER" + ")";
         sqLiteDatabase.execSQL(create_table_query);
 
     }
@@ -78,9 +80,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         contentValues.put(CONTACT_NAME, alarm.getContactName());
         contentValues.put(CONTACT_NUMBER, alarm.getContactNumber());
         contentValues.put(MESSAGE, alarm.getMessage());
+        Log.d(TAG, "date: "+ alarm.getDate());
         contentValues.put(DATE, formatDateTime(mContext,alarm.getDate()));
         contentValues.put(STATUS, alarm.getStatus());
         contentValues.put(CONTACT_PHOTO, alarm.getContactPhotoURI());
+        contentValues.put(REPEAT_TYPE, alarm.getRepeatType());
         id = sqLiteDatabase.insert(TABLE_NAME, null, contentValues);
         sqLiteDatabase.close();
         return id;
@@ -140,6 +144,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 alarm.setDate(cursor.getString(5));
                 alarm.setStatus(cursor.getInt(6));
                 alarm.setContactPhotoURI(cursor.getString(7));
+                alarm.setRepeatType(cursor.getInt(8));
                 alarms.add(alarm);
             }while (cursor.moveToNext());
         }
@@ -153,12 +158,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         Alarm alarm=null;
         SQLiteDatabase sqLiteDatabase = getReadableDatabase();
         Cursor cursor = sqLiteDatabase.query(TABLE_NAME, new String[] { ID,
-                        TITLE, CONTACT_NAME, CONTACT_NUMBER, MESSAGE, DATE, STATUS, CONTACT_PHOTO }, ID + " = " + id,
+                        TITLE, CONTACT_NAME, CONTACT_NUMBER, MESSAGE, DATE, STATUS, CONTACT_PHOTO, REPEAT_TYPE }, ID + " = " + id,
                 null, null, null, null, null);
         if (cursor.moveToFirst()) {
             alarm = new Alarm(cursor.getInt(0), cursor.getString(1), cursor.getString(2),
                     cursor.getString(3), cursor.getString(4),
-                    cursor.getString(5), cursor.getInt(6), cursor.getString(7));
+                    cursor.getString(5), cursor.getInt(6), cursor.getString(7), cursor.getInt(8));
         }
         Log.d(TAG, "alarm: "+alarm);
         cursor.close();
@@ -178,6 +183,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         contentValues.put(DATE, alarm.getDate());
         contentValues.put(STATUS, alarm.getStatus());
         contentValues.put(CONTACT_PHOTO, alarm.getContactPhotoURI());
+        contentValues.put(REPEAT_TYPE, alarm.getRepeatType());
         return sqLiteDatabase.update(TABLE_NAME, contentValues, ID + " = ?",
                 new String[]{String.valueOf(alarm.getId())});
     }

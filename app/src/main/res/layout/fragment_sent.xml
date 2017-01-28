@@ -10,16 +10,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-    <!--<TextView
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Sent"
+        android:text="No saved Entries"
         android:textSize="16sp"
         android:textColor="#9e9e9e"
-        android:gravity="center_vertical|left"
+        android:gravity="center"
         android:layout_margin="8dp"
         android:id="@+id/sent_msgs_tag"
-        android:visibility="gone"/>-->
+        android:visibility="gone"
+        android:layout_marginTop="48dp"/>
     <ListView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

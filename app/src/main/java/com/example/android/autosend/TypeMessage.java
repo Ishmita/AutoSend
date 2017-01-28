@@ -1,6 +1,7 @@
 package com.example.android.autosend;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -12,6 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -58,7 +60,11 @@ public class TypeMessage extends AppCompatActivity {
                         Intent intent = new Intent(TypeMessage.this, CardsAdapter.class);
                         intent.putExtra("msg", message);
                         setResult(102, intent);
-                        finish();
+                InputMethodManager inputManager = (InputMethodManager)
+                            getSystemService(Context.INPUT_METHOD_SERVICE);
+                inputManager.hideSoftInputFromWindow((null == getCurrentFocus())
+                        ? null : getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                finish();
             }
         });
     }

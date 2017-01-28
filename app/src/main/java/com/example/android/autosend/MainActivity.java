@@ -198,6 +198,12 @@ public class MainActivity extends AppCompatActivity {
         fragment.onActivityResult(requestCode, resultCode, data);
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        fragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
     public interface Updateable {
         public void update();
     }

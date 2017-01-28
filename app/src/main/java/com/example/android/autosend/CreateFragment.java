@@ -1,9 +1,12 @@
 package com.example.android.autosend;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
@@ -23,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import it.sephiroth.android.library.tooltip.Tooltip;
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 
 
 /**
@@ -60,13 +64,28 @@ public class CreateFragment extends Fragment implements MainActivity.Updateable 
         title = (EditText)view.findViewById(R.id.title_edit_text);
         addTextWatcher();
         createEntryList = new ArrayList<>();
-        cardsAdapter = new CardsAdapter(getContext(), createEntryList);
-
-        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(this.getContext(), 2);
+        final RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(this.getContext(), 2);
         recyclerView.setLayoutManager(mLayoutManager);
+        CardsAdapter.ScrollRecyclerView scrollRecyclerViewListener = new CardsAdapter.ScrollRecyclerView() {
+            @Override
+            public void onScrollNeeded() {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (recyclerView != null) {
+                            recyclerView.scrollToPosition(0);
+                        }
+                    }
+                });
+                Log.d(TAG, "onScrollNeeded called");
+            }
+        };
+        cardsAdapter = new CardsAdapter(getContext(), createEntryList, scrollRecyclerViewListener);
+
         //recyclerView.addItemDecoration(new GridSpacingItemDecoration(2, dpToPx(10), true));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(cardsAdapter);
+
         prepareList();
         return view;
     }
@@ -105,6 +124,12 @@ public class CreateFragment extends Fragment implements MainActivity.Updateable 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d("CreateFragment", "onActivityResult");
         cardsAdapter.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        cardsAdapter.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
 

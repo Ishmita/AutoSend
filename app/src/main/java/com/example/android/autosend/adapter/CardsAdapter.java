@@ -1,15 +1,19 @@
 package com.example.android.autosend.adapter;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.ContactsContract;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -27,11 +31,13 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -52,6 +58,10 @@ import java.util.Calendar;
 import java.util.List;
 
 import it.sephiroth.android.library.tooltip.Tooltip;
+import uk.co.deanwild.materialshowcaseview.IShowcaseListener;
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
+import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 
 /**
  * Created by Ishmita on 28-12-2016.
@@ -65,22 +75,27 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
     ArrayList<Contact> alContacts;
     ArrayList<Contact> selectedContacts = new ArrayList<>();
     boolean newSelection;
-    int count = 0, day=0, month=-1, year=0,checkedCount = 0;
+    int count = 0, day=0, month=-1, year=0,repeatType = 0;
     Integer hour, minute;
     private final static String TAG = "cardsAdapter";
     private static final int REQUEST_CODE = 10;
     private static final int EDIT_REQUEST_CODE = 2;
+    private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 101;
+    private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 201;
     private String message = null;
     Calendar calendar;
     String title;
     Activity activity;
     private Tooltip.TooltipView mCurrentTooltip;
-    int tooltipPosition;
+    View view1 = null, view2 = null, view3 = null, view4 = null;
+    View buttonView1, buttonView2, buttonView3, buttonVuew4;
+    ScrollRecyclerView scrollRecyclerViewListener;
 
-    public CardsAdapter(Context mContext, List<CreateEntry> createEntryList){
+    public CardsAdapter(Context mContext, List<CreateEntry> createEntryList, ScrollRecyclerView scrollRecyclerViewListener){
         this.mContext = mContext;
         this.createEntryList = createEntryList;
         activity = (Activity)mContext;
+        this.scrollRecyclerViewListener = scrollRecyclerViewListener;
     }
 
     public void setTitle(String title) {
@@ -121,20 +136,144 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
 
     @Override
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
-
         CreateEntry createEntry = createEntryList.get(position);
         holder.heading.setText(createEntry.getHeading());
+
+        if(position == 0) {
+            view1 = holder.image;
+            buttonView1 = holder.actionButton;
+        }
+        else if (position == 1) {
+            view2 = holder.image;
+            buttonView2 = holder.actionButton;
+        }
+        else if (position ==2 ) {
+            view3 = holder.image;
+            buttonView3 = holder.actionButton;
+        }
+        else if(position ==3) {
+            view4 = holder.image;
+            buttonVuew4 = holder.actionButton;
+        }
+        new MaterialShowcaseView.Builder((Activity) mContext)
+                .setTarget(view1)
+                .setDismissText("GOT IT")
+                .setContentText("Use this to select contacts")
+                .withCircleShape()
+                .singleUse("1")
+                .setDelay(200)
+                .setListener(new IShowcaseListener() {
+                    @Override
+                    public void onShowcaseDisplayed(MaterialShowcaseView materialShowcaseView) {
+
+                    }
+
+                    @Override
+                    public void onShowcaseDismissed(MaterialShowcaseView materialShowcaseView) {
+
+                            new MaterialShowcaseView.Builder((Activity) mContext)
+                                    .setTarget(buttonView1)
+                                    .setDismissText("GOT IT")
+                                    .setContentText("Click me to view and edit the list of selected contacts")
+                                    .withRectangleShape()
+                                    .singleUse("2")
+                                    .setListener(new IShowcaseListener() {
+                                        @Override
+                                        public void onShowcaseDisplayed(MaterialShowcaseView materialShowcaseView) {
+
+                                        }
+
+                                        @Override
+                                        public void onShowcaseDismissed(MaterialShowcaseView materialShowcaseView) {
+                                            writeNewMsg();
+                                        }
+                                    })
+                                    .show();
+                            Log.d(TAG, "dismissed");
+                    }
+                })
+                .show();
+
         //tooltipPosition = position + 1;
         //showTooltip(holder, "", 0);
 
-        /*if(tooltipPosition == 1) {
+        /*ShowcaseConfig config = new ShowcaseConfig();
+        config.setDelay(2000);
+
+        final MaterialShowcaseSequence sequence = new MaterialShowcaseSequence((Activity)mContext,"2");
+        sequence.setConfig(config);
+        sequence.setOnItemDismissedListener(new MaterialShowcaseSequence.OnSequenceItemDismissedListener() {
+            @Override
+            public void onDismiss(MaterialShowcaseView materialShowcaseView, int i) {
+
+            }
+        });
+        if(position == 0) {
+            //sequence.addSequenceItem(
+            new MaterialShowcaseView.Builder((Activity) mContext)
+                    .setTarget(holder.image)
+                    .setDismissText("GOT IT")
+                    .setContentText("This is contacts")
+                    .withCircleShape()
+                    .setListener(new IShowcaseListener() {
+                        @Override
+                        public void onShowcaseDisplayed(MaterialShowcaseView materialShowcaseView) {
+
+                        }
+
+                        @Override
+                        public void onShowcaseDismissed(MaterialShowcaseView materialShowcaseView) {
+                            if (position == 1) {
+                                new MaterialShowcaseView.Builder((Activity) mContext)
+                                        .setTarget(holder.image)
+                                        .setDismissText("GOT IT")
+                                        .setContentText("This is message")
+                                        .withCircleShape()
+                                        .setDelay(200)
+                                        .show();
+                            }
+                            Log.d(TAG, "dismissed");
+                        }
+                    })
+                    .show();
+            //);
+        }
+        }else if(position == 1) {
             //Contacts cards is clicked, so show tooltip on Message card
-            showTooltip(holder, "tooltip position 1" ,9);
-        }else if(tooltipPosition == 2) {
-            showTooltip(holder, "tooltip position 2", 8);
-        }else if(tooltipPosition == 3) {
-            showTooltip(holder, "tooltip position 3", 9);
-        }*/
+            //showTooltip(holder, "tooltip position 1" ,9);
+            sequence.addSequenceItem(
+                    new MaterialShowcaseView.Builder((Activity)mContext)
+                            .setTarget(holder.image)
+                            .setDismissText("GOT IT")
+                            .setContentText("This is message")
+                            .withCircleShape()
+                            .setDelay(10000)
+                            .build()
+            );
+        }else if(position == 2) {
+            //showTooltip(holder, "tooltip position 2", 8);
+            sequence.addSequenceItem(
+                    new MaterialShowcaseView.Builder((Activity)mContext)
+                            .setTarget(holder.image)
+                            .setDismissText("GOT IT")
+                            .setContentText("This is date")
+                            .withCircleShape()
+                            .setDelay(20000)
+                            .build()
+            );
+        }else if(position == 3) {
+            //showTooltip(holder, "tooltip position 3", 9);
+            sequence.addSequenceItem(
+                    new MaterialShowcaseView.Builder((Activity)mContext)
+                            .setTarget(holder.image)
+                            .setDismissText("GOT IT")
+                            .setContentText("This is send")
+                            .setDelay(30000)
+                            .withCircleShape()
+                            .build()
+            );
+        }
+        sequence.start();*/
         holder.actionButton.setText(createEntry.getActionButton());
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -142,7 +281,24 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
 
                 if (position == 0) {
                     holder.actionButton.setVisibility(View.VISIBLE);
-                    new FetchContactsTask().execute();
+                    /*new MaterialShowcaseView.Builder((Activity)mContext)
+                            .setTarget(holder.image)
+                            .setDismissText("GOT IT")
+                            .setContentText("This is some amazing feature you should know about")
+                            .setDelay(500) // optional but starting animations immediately in onCreate can make them choppy
+                            .singleUse("1") // provide a unique ID used to ensure it is only shown once
+                            .show();*/
+                    if (ContextCompat.checkSelfPermission(mContext,
+                            Manifest.permission.READ_CONTACTS)
+                            != PackageManager.PERMISSION_GRANTED) {
+                        Log.d(TAG, "taking permission");
+                        ActivityCompat.requestPermissions((Activity) mContext,
+                                new String[]{Manifest.permission.READ_CONTACTS},
+                                MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+
+                    }else {
+                        new FetchContactsTask().execute();
+                    }
                 }else if(position == 1){
                     Intent msgIntent = new Intent(mContext,TypeMessage.class);
                     //mContext.startActivity(msgIntent);
@@ -181,6 +337,29 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
         return createEntryList.size();
     }
 
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_READ_CONTACTS: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d(TAG, "permission granted!");
+                    new FetchContactsTask().execute();
+                }
+            break;
+            }
+            case MY_PERMISSIONS_REQUEST_SEND_SMS: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d(TAG, "permission granted to send sms!");
+                    saveAlarm();
+                    break;
+                }
+            }
+        }
+    }
+
     public void fetchContacts(){
         Uri uri = ContactsContract.Contacts.CONTENT_URI;
         ContentResolver contentResolver = mContext.getContentResolver();
@@ -213,7 +392,7 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
 
     public void showContactDialog(){
         newSelection = true;
-        final Dialog contactListDialog = new Dialog(mContext);
+        final Dialog contactListDialog = new Dialog(mContext, R.style.MyDialogTheme);
         contactListDialog.setContentView(R.layout.contact_list_dialog);
         contactListDialog.setCancelable(true);
         final ListView contactListView = (ListView)contactListDialog.findViewById(R.id.contacts_list_view);
@@ -338,7 +517,7 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
     }
 
     public void showSelectedListDialog() {
-        Dialog dialog = new Dialog(mContext);
+        Dialog dialog = new Dialog(mContext, R.style.MyDialogTheme);
         dialog.setTitle("Selected Contacts");
         dialog.setContentView(R.layout.selected_contact_list);
         ListView listView = (ListView)dialog.findViewById(R.id.selected_contacts_list_view);
@@ -434,6 +613,28 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
         final ViewSwitcher viewSwitcher = (ViewSwitcher) dateTimeDialog.findViewById(R.id.view_switcher);
         final DatePicker datePicker = (DatePicker) dateTimeDialog.findViewById(R.id.date_picker);
         final TimePicker timePicker = (TimePicker) dateTimeDialog.findViewById(R.id.time_picker);
+        final Spinner spinner = (Spinner) dateTimeDialog.findViewById(R.id.spinner_repeat);
+        List<String> type = new ArrayList<String>();
+        type.add("None");
+        type.add("Hourly");
+        type.add("Daily");
+        type.add("Monthly");
+        type.add("Yearly");
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(mContext, android.R.layout.simple_spinner_item, type);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
+                repeatType = i;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                repeatType =0;
+            }
+        });
         Button okButton = (Button) dateTimeDialog.findViewById(R.id.ok_date_time_button);
         Window window = dateTimeDialog.getWindow();
         window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
@@ -452,18 +653,18 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
                     viewSwitcher.showNext();
                     //dateTimeDialog.setTitle("Select Time");
                     count++;
-                }else{
-                    count = 0;
+                }else if(count == 1){
                     timePicker.clearFocus();
                     hour = timePicker.getCurrentHour();
                     minute = timePicker.getCurrentMinute();
                     Log.d(TAG, "hour: "+hour+"minute: "+minute);
                     //get selected time.
-                    dateTimeDialog.dismiss();
                     calendar = Calendar.getInstance();
                     calendar.set(year, month, day, hour, minute, 0);
+                    //viewSwitcher.showNext();
+                    dateTimeDialog.dismiss();
+                    count = 0;
                 }
-
             }
         });
 
@@ -473,76 +674,91 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
         DatabaseHandler databaseHandler = new DatabaseHandler(mContext);
         Log.d(TAG, "title: "+title);
         //Log.d(TAG, "rows deleted: "+databaseHandler.deleteAllAlarms());
-        if(selectedContacts.size()!=0 && message!=null && year!=0 && month!=-1 && day!=0 && title!=null) {
-            for (Contact contact : selectedContacts) {
-                Alarm alarm = new Alarm();
-                int id;
-                alarm.setAlarmTitle(title);
-                alarm.setContactName(contact.getContactName());
-                alarm.setContactNumber(contact.getNumber());
-                alarm.setMessage(message);
-                alarm.setDate("" + year + " " + getMonth(month) + " " + getDay(day) + " " +
-                        hour + " " + minute);
-                alarm.setStatus(0);
-                alarm.setContactPhotoURI(contact.getContactPhoto());
+        if(selectedContacts.size()!=0 && message!=null && message.length()>0 && year!=0
+                && month!=-1 && day!=0 && title!=null && title.length()>0) {
 
-                //Saving alarm in database
-                id = (int)databaseHandler.saveAlarm(alarm);
-                alarm.setId(id);
-                Log.d(TAG, "contact uri just before saving: "+contact.getContactPhoto()+
-                        " alarm uri: "+alarm.getContactPhotoURI());
-                Calendar now = Calendar.getInstance();
-                if (calendar.compareTo(now) <= 0) {
-                    Toast.makeText(mContext, "Invalid date", Toast.LENGTH_LONG).show();
-                } else {
-                    //Setting the alarm for each alarm that is saved to DB
-                    AlarmService alarmService = new AlarmService();
-                    alarmService.setAlarm(mContext, alarm);
+            if (ContextCompat.checkSelfPermission(mContext,
+                    Manifest.permission.SEND_SMS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "taking permission");
+                ActivityCompat.requestPermissions((Activity) mContext,
+                        new String[]{Manifest.permission.SEND_SMS},
+                        MY_PERMISSIONS_REQUEST_SEND_SMS);
+
+            } else {
+
+                for (Contact contact : selectedContacts) {
+                    Alarm alarm = new Alarm();
+                    int id;
+                    alarm.setAlarmTitle(title);
+                    alarm.setContactName(contact.getContactName());
+                    alarm.setContactNumber(contact.getNumber());
+                    alarm.setMessage(message);
+                    alarm.setDate("" + year + " " + getMonth(month) + " " + getDay(day) + " " +
+                            hour + " " + minute);
+                    alarm.setStatus(0);
+                    alarm.setContactPhotoURI(contact.getContactPhoto());
+                    alarm.setRepeatType(repeatType);
+
+                    //Saving alarm in database
+                    id = (int) databaseHandler.saveAlarm(alarm);
+                    alarm.setId(id);
+                    Log.d(TAG, "contact uri just before saving: " + contact.getContactPhoto() +
+                            " alarm uri: " + alarm.getContactPhotoURI());
+                    Calendar now = Calendar.getInstance();
+                    if (calendar.compareTo(now) <= 0) {
+                        Toast.makeText(mContext, "Invalid date", Toast.LENGTH_LONG).show();
+                    } else {
+                        //Setting the alarm for each alarm that is saved to DB
+                        AlarmService alarmService = new AlarmService();
+                        alarmService.setAlarm(mContext, alarm);
+                    }
                 }
-            }
-            Toast.makeText(mContext,"Saved", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "Saved", Toast.LENGTH_SHORT).show();
 
-            //tell the viewPager to refresh pages.
-            MainActivity.mViewPager.getAdapter().notifyDataSetChanged();
-        }else {
+                //tell the viewPager to refresh pages.
+                MainActivity.mViewPager.getAdapter().notifyDataSetChanged();
+
+            List<Alarm> alarms = databaseHandler.getAllAlarms();
+            for (Alarm alarm1 : alarms) {
+                Log.d(TAG, "alarmId: " + alarm1.getId() + " title: " + alarm1.getAlarmTitle() +
+                        " contactName: " + alarm1.getContactName() +
+                        " date: " + alarm1.getDate() + " msg: " + alarm1.getMessage() +
+                        " number: " + alarm1.getContactNumber() +
+                        " photo uri: " + alarm1.getContactPhotoURI());
+            }
+            }
+        }else{
             Toast.makeText(mContext, "Please specify all details", Toast.LENGTH_SHORT).show();
-        }
-        List<Alarm> alarms = databaseHandler.getAllAlarms();
-        for(Alarm alarm1: alarms) {
-            Log.d(TAG, "alarmId: " + alarm1.getId()+ " title: " + alarm1.getAlarmTitle()+
-                    " contactName: "+alarm1.getContactName()+
-                    " date: " + alarm1.getDate()+" msg: "+alarm1.getMessage()+
-                    " number: "+alarm1.getContactNumber()+
-                    " photo uri: "+alarm1.getContactPhotoURI());
         }
     }
 
     public String getMonth(int month) {
         switch(month) {
             case 0:
-                return "00";
-            case 1:
                 return "01";
-            case 2:
+            case 1:
                 return "02";
-            case 3:
+            case 2:
                 return "03";
-            case 4:
+            case 3:
                 return "04";
-            case 5:
+            case 4:
                 return "05";
-            case 6:
+            case 5:
                 return "06";
-            case 7:
+            case 6:
                 return "07";
-            case 8:
+            case 7:
                 return "08";
-            case 9:
+            case 8:
                 return "09";
-            case 10:
+            case 9:
                 return "10";
-            case 11:
+            case 10:
                 return "11";
+            case 11:
+                return "12";
         }
         return null;
     }
@@ -571,6 +787,109 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
             default:
                 return ""+day;
         }
+    }
+
+    public void writeNewMsg() {
+        new MaterialShowcaseView.Builder((Activity) mContext)
+                .setTarget(view2)
+                .setDismissText("GOT IT")
+                .setContentText("Write new message to send")
+                .withCircleShape()
+                .singleUse("3")
+                .setListener(new IShowcaseListener() {
+                    @Override
+                    public void onShowcaseDisplayed(MaterialShowcaseView materialShowcaseView) {
+
+                    }
+
+                    @Override
+                    public void onShowcaseDismissed(MaterialShowcaseView materialShowcaseView) {
+                        editMsg();
+                    }
+                })
+                .show();
+    }
+
+    public void editMsg() {
+        new MaterialShowcaseView.Builder((Activity) mContext)
+                .setTarget(buttonView2)
+                .setDismissText("GOT IT")
+                .setContentText("Click me to Edit your Message content!")
+                .withRectangleShape()
+                .singleUse("4")
+                .setListener(new IShowcaseListener() {
+                    @Override
+                    public void onShowcaseDisplayed(MaterialShowcaseView materialShowcaseView) {
+
+                    }
+
+                    @Override
+                    public void onShowcaseDismissed(MaterialShowcaseView materialShowcaseView) {
+                        //scrollRecyclerViewListener.onScrollNeeded();
+                        //selectDateTime();
+                    }
+                })
+                .show();
+    }
+
+    public void selectDateTime() {
+        new MaterialShowcaseView.Builder((Activity) mContext)
+                .setTarget(view3)
+                .setDismissText("GOT IT")
+                .setContentText("Select Date and Time when you want to send your message to selected contacts!")
+                .withCircleShape()
+                .singleUse("5")
+                .setDelay(200)
+                .setListener(new IShowcaseListener() {
+                    @Override
+                    public void onShowcaseDisplayed(MaterialShowcaseView materialShowcaseView) {
+
+                    }
+
+                    @Override
+                    public void onShowcaseDismissed(MaterialShowcaseView materialShowcaseView) {
+                        editDateTime();
+                    }
+                })
+                .show();
+    }
+
+    public void editDateTime() {
+        new MaterialShowcaseView.Builder((Activity) mContext)
+                .setTarget(buttonView3)
+                .setDismissText("GOT IT")
+                .setContentText("Click here to set new Date and Time for your Message")
+                .withRectangleShape()
+                .singleUse("6")
+                .setDelay(200)
+                .setListener(new IShowcaseListener() {
+                    @Override
+                    public void onShowcaseDisplayed(MaterialShowcaseView materialShowcaseView) {
+
+                    }
+
+                    @Override
+                    public void onShowcaseDismissed(MaterialShowcaseView materialShowcaseView) {
+                        saveInfo();
+                    }
+                })
+                .show();
+    }
+
+    public void saveInfo() {
+        new MaterialShowcaseView.Builder((Activity) mContext)
+                .setTarget(view4)
+                .setDismissText("GOT IT")
+                .setContentText("Click me to save your created entry and your Message will be Sent to " +
+                        "the Selected Contacts at the specified Time and you don't have to do anything for it!!")
+                .withCircleShape()
+                .singleUse("7")
+                .setDelay(200)
+                .show();
+    }
+
+    public interface ScrollRecyclerView {
+        public void onScrollNeeded();
     }
     public void showTooltip(MyViewHolder myViewHolder, String text, long delay) {
         Tooltip.make( mContext,

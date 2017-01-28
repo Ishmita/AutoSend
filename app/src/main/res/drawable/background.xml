@@ -3,12 +3,13 @@
     android:exitFadeDuration="@android:integer/config_shortAnimTime">
     <item  android:state_pressed="true"
         android:state_activated="true"
-        android:drawable="@color/toolTipColor"></item>
+        android:drawable="@color/selectedItemBackground"></item>
     <item
         android:state_activated="true"
-        android:drawable="@color/toolTipColor"></item>
+        android:drawable="@color/selectedItemBackground"></item>
 
-    <item  android:drawable="?android:colorBackground"></item>
+    <item  android:drawable="@color/listItemBackground"></item>
+
     <item android:state_enabled="true"
-        android:drawable="?android:colorBackground"></item>
+        android:drawable="@color/listItemBackground"></item>
 </selector>

@@ -67,7 +67,7 @@ public class SentFragment extends Fragment implements MainActivity.Updateable {
         View view =  inflater.inflate(R.layout.fragment_sent, container, false);
         done = (ListView)view.findViewById(R.id.alarms_done_list_view);
         //toDo = (ListView)view.findViewById(R.id.alarms_to_do_list_view);
-        //sent = (TextView)view.findViewById(R.id.sent_msgs_tag);
+        sent = (TextView)view.findViewById(R.id.sent_msgs_tag);
         //toSend = (TextView)view.findViewById(R.id.to_send_tag);
         databaseHandler = new DatabaseHandler(getContext());
         ArrayList<Alarm> alarms = databaseHandler.getAllAlarms();
@@ -140,8 +140,9 @@ public class SentFragment extends Fragment implements MainActivity.Updateable {
                     imageView.setImageResource(R.drawable.contact);
                 }
                 name.setText(doneAlarms.get(i).getContactName());
+                int len = doneAlarms.get(i).getDate().length();
                 date.setText(doneAlarms.get(i).getDate().substring(0,11)+
-                        "  "+doneAlarms.get(i).getDate().substring(11,19));
+                        "  "+doneAlarms.get(i).getDate().substring(11,len));
                 message.setText("\n"+doneAlarms.get(i).getMessage());
                 Window window = messageDetailsDialog.getWindow();
                 window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
@@ -166,9 +167,12 @@ public class SentFragment extends Fragment implements MainActivity.Updateable {
             doneAdapter.notifyDataSetChanged();
             //toDoAdapter.notifyDataSetChanged();
         }
-        //if(doneAlarms.size()>0) {
-        //    sent.setVisibility(View.VISIBLE);
-        //}
+
+        if(doneAlarms.size() == 0) {
+            sent.setVisibility(View.VISIBLE);
+        }else {
+            sent.setVisibility(View.GONE);
+        }
         //if(toDoAlarms.size()>0) {
         //    toSend.setVisibility(View.VISIBLE);
         //}

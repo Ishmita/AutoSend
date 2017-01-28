@@ -12,28 +12,42 @@
 
         <DatePicker
             android:id="@+id/date_picker"
+            style="@style/DatePicker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal|top"
-            style="@style/DatePicker">
-        </DatePicker>
+            android:layout_gravity="center_horizontal|top"></DatePicker>
 
         <TimePicker
             android:id="@+id/time_picker"
+            style="@style/TimePicker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal|top"
-            style="@style/TimePicker">
-        </TimePicker>
+            android:layout_gravity="center_horizontal|top"></TimePicker>
     </ViewSwitcher>
 
-    <Button
-        android:id="@+id/ok_date_time_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="?android:attr/selectableItemBackground"
-        android:text="OK"
-        android:layout_gravity="bottom|right"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"/>
-</LinearLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Spinner
+            android:id="@+id/spinner_repeat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="bottom"
+            android:prompt="@string/prompt"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="16dp"></Spinner>
+
+        <Button
+            android:id="@+id/ok_date_time_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignRight="@+id/spinner_repeat"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
+            android:background="?android:attr/selectableItemBackground"
+            android:text="OK" />
+</RelativeLayout>
+    </LinearLayout>

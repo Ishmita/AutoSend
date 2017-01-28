@@ -46,11 +46,11 @@ public class SavedFragment extends Fragment implements MainActivity.Updateable{
     private static final String TAG = "SavedFragment";
     ListView savedAlarmsListView;
     Alarm alarm;
-    ArrayList<Alarm> savedAlarms;
+    ArrayList<Alarm> savedAlarms, allAlarms;
     AlarmsAdapter adapter;
     int position;
     DatabaseHandler databaseHandler;
-
+    TextView savedTextView;
     public SavedFragment() {
         // Required empty public constructor
     }
@@ -69,13 +69,14 @@ public class SavedFragment extends Fragment implements MainActivity.Updateable{
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_sent, container, false);
         savedAlarmsListView = (ListView)view.findViewById(R.id.alarms_done_list_view);
-        //savedTextView = (TextView)view.findViewById(R.id.sent_msgs_tag);
+        savedTextView = (TextView)view.findViewById(R.id.sent_msgs_tag);
         //savedTextView.setText("Saved");
         databaseHandler = new DatabaseHandler(getContext());
-        savedAlarms = databaseHandler.getAllAlarms();
+        savedAlarms = new ArrayList<>();
 
         adapter = new AlarmsAdapter(getContext(), savedAlarms, R.layout.alarm_list_item);
         savedAlarmsListView.setAdapter(adapter);
+        prepareList();
         savedAlarmsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -105,8 +106,9 @@ public class SavedFragment extends Fragment implements MainActivity.Updateable{
                     imageView.setImageResource(R.drawable.contact);
                 }
                 name.setText(savedAlarms.get(i).getContactName());
+                int len = savedAlarms.get(i).getDate().length();
                 date.setText(savedAlarms.get(i).getDate().substring(0,11)+
-                        "  "+savedAlarms.get(i).getDate().substring(11,19));
+                        "  "+savedAlarms.get(i).getDate().substring(11,len));
                 message.setText("\n"+savedAlarms.get(i).getMessage());
                 Window window = messageDetailsDialog.getWindow();
                 window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
@@ -146,14 +148,32 @@ public class SavedFragment extends Fragment implements MainActivity.Updateable{
         return view;
     }
 
+    public void prepareList() {
+        allAlarms = databaseHandler.getAllAlarms();
+        savedAlarms.clear();
+        for(Alarm a: allAlarms) {
+            if(a.getStatus() == 0) {
+                savedAlarms.add(a);
+                Log.d(TAG, "id: "+a.getId()+" name: "+a.getContactName());
+            }
+        }
+
+        adapter.notifyDataSetChanged();
+        if(savedAlarms.size()== 0) {
+            savedTextView.setVisibility(View.VISIBLE);
+        }else {
+            savedTextView.setVisibility(View.GONE);
+        }
+    }
     @Override
     public void update() {
         Log.d(TAG, "update of SavedFragment called!");
-        savedAlarms.clear();
+        /*savedAlarms.clear();
         savedAlarms.addAll(databaseHandler.getAllAlarms());
         adapter.notifyDataSetChanged();
         //adapter = new AlarmsAdapter(getContext(), savedAlarms, R.layout.alarm_list_item);
         //savedAlarmsListView.setAdapter(adapter);
-
+        */
+        prepareList();
     }
 }
