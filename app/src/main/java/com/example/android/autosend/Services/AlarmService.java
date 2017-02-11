@@ -5,6 +5,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.util.Log;
 
 import java.util.Calendar;
@@ -61,51 +62,64 @@ public class AlarmService {
         alarmManager.cancel(getPendingIntent(context, id));
     }
 
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     public void setRepeatingAlarm(Context context , Alarm alarm) {
         //Calendar newDate = (Calendar) getDateForRepeat(alarm).clone();
         int repeatType;
-        String parts[] = alarm.getDate().split(" ");
+        String alarmDate = alarm.getDate().replaceAll(",", " ");
+        String parts[] = alarmDate.split("\\s+");
         Integer date = Integer.parseInt(parts[0]);
         Integer year = null;
-        if(parts[2].endsWith(",")){
-            year = Integer.parseInt(parts[2].substring(0, parts[2].length()-1));
+        if (parts[2].endsWith(",")) {
+            year = Integer.parseInt(parts[2].substring(0, parts[2].length() - 1));
         } else {
             year = Integer.parseInt(parts[2]);
         }
-        Integer month = Integer.parseInt(getMonth(parts[1]))-1;
+        Integer month = Integer.parseInt(getMonth(parts[1])) - 1;
         String timeParts[] = parts[3].split(":");
         Integer min = Integer.parseInt(timeParts[1]);
         Integer hour = null;
         if (parts.length == 5) {
             hour = Integer.parseInt(getHour(timeParts[0], parts[4]));
+            Log.d(TAG, "saved hour: " + timeParts[0] + " amPm: " + parts[4]);
         } else {
             hour = Integer.parseInt(getHour(timeParts[0], null));
         }
+
         Calendar calendar = Calendar.getInstance();
         calendar.set(year, month, date, hour, min, 0);
-
+        Log.d(TAG, "getHour():  " + hour + " set hour of day: " + calendar.get(Calendar.HOUR_OF_DAY));
         Calendar now = Calendar.getInstance();
-        if (calendar.compareTo(now)<=0) {
+
+        if (calendar.compareTo(now) <= 0) {
+            //    Log.d(TAG, "inside if!");
             switch (alarm.getRepeatType()) {
                 case 1:
                     repeatType = Calendar.HOUR_OF_DAY;
-                    calendar.set(year, month, date, hour + 1, min, 0);
-                    hour++;
+                    //calendar.set(year, month, date, hour + 1, min, 0);
+                    //hour++;
+                    calendar = getNextHour(calendar);
+                    calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
+                            calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY),
+                            calendar.get(Calendar.MINUTE), 0);
                     break;
                 case 2:
                     repeatType = Calendar.DAY_OF_YEAR;
-                    calendar.set(year, month, date + 1, hour, min, 0);
-                    date++;
+                    //calendar.set(year, month, date + 1, hour, min, 0);
+                    //date++;
+                    calendar = getNextDay(calendar);
                     break;
                 case 3:
                     repeatType = Calendar.MONTH;
-                    calendar.set(year, month + 1, date, hour, min, 0);
-                    month++;
+                    //calendar.set(year, month + 1, date, hour, min, 0);
+                    //month++;
+                    calendar = getNextMonth(calendar);
                     break;
                 case 4:
                     repeatType = Calendar.YEAR;
-                    calendar.set(year + 1, month, date, hour, min, 0);
-                    year++;
+                    //calendar.set(year + 1, month, date, hour, min, 0);
+                    //year++;
+                    calendar = getNextYear(calendar);
                     break;
                 default:
                     repeatType = Calendar.DAY_OF_YEAR;
@@ -113,18 +127,20 @@ public class AlarmService {
             }
         }
 
-        //newDate.add(repeatType, 0);
-        AlarmManager am=(AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                getPendingIntent(context, alarm.getId()));
+            //newDate.add(repeatType, 0);
+            AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            am.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                    getPendingIntent(context, alarm.getId()));
 
-        String dateString = "" + year + " " + (month+1) + " " + date + " " +
-                hour + " " + min;
+            String dateString = "" + calendar.get(Calendar.YEAR) + " " + (calendar.get(Calendar.MONTH) + 1)
+                    + " " + calendar.get(Calendar.DAY_OF_MONTH) + " " +
+                    calendar.get(Calendar.HOUR_OF_DAY) + " " + calendar.get(Calendar.MINUTE);
 
-        DatabaseHandler databaseHandler = new DatabaseHandler(context);
-        alarm.setDate(DatabaseHandler.formatDateTime(context, dateString));
-        databaseHandler.editAlarm(alarm);
-        Log.d(TAG , "new date: "+alarm.getDate());
+            Log.d(TAG, "dateString: " + dateString);
+            DatabaseHandler databaseHandler = new DatabaseHandler(context);
+            alarm.setDate(DatabaseHandler.formatDateTime(context, dateString));
+            databaseHandler.editAlarm(alarm);
+            Log.d(TAG, "new date: " + alarm.getDate());
 
     }
 
@@ -162,10 +178,16 @@ public class AlarmService {
     }
 
     public String getHour(String hour, String amPm) {
-        if (amPm == null || amPm.equals("am")) {
+        if (amPm == null || amPm.equalsIgnoreCase("am") || amPm.equalsIgnoreCase("a.m.")) {
+            if(amPm != null && (amPm.equalsIgnoreCase("am") || amPm.equalsIgnoreCase("a.m.")) && hour.equals("12")) {
+                Log.d(TAG, "12 hour and a.m.");
+                return "00";
+            }
             return hour;
-        }else if(amPm.equals("pm")) {
-            if(hour.equals("1"))
+        }else if(amPm.equalsIgnoreCase("pm") || amPm.equalsIgnoreCase("p.m.")) {
+            if(hour.equals("12"))
+                return "12";
+            else if(hour.equals("1"))
                 return "13";
             else if(hour.equals("2"))
                 return "14";
@@ -187,9 +209,77 @@ public class AlarmService {
                 return "22";
             else if(hour.equals("11"))
                 return "23";
-            else if(hour.equals("12"))
-                return "24";
         }
         return null;
+    }
+
+    public Calendar getNextHour(Calendar calendar) {
+        Integer hour = calendar.get(Calendar.HOUR_OF_DAY);
+        Log.d(TAG, "hour of day: "+hour);
+        if(hour.equals(23)) {
+            calendar.set(Calendar.HOUR_OF_DAY, 00);
+            return getNextDay(calendar);
+        } else {
+            calendar.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY)+1);
+        }
+        Log.d(TAG, "next hour: "+calendar.get(Calendar.HOUR_OF_DAY));
+        return calendar;
+    }
+
+    public Calendar getNextDay(Calendar calendar) {
+        Integer month = calendar.get(Calendar.MONTH);
+        if(month == 0 || month == 2 || month == 4 || month == 6 || month == 7 || month == 9 || month == 11) {
+            //31 days in each of these months
+            if(calendar.get(Calendar.DAY_OF_MONTH)==31) {
+                calendar.set(Calendar.DAY_OF_MONTH, 1);
+                return getNextMonth(calendar);
+            }else {
+                calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH)+1);
+            }
+        } else if (month == 1) {
+            //check leap year stuff
+            Calendar year = Calendar.getInstance();
+            year.set(Calendar.YEAR, calendar.get(Calendar.YEAR));
+            boolean isLeapYear = year.getActualMaximum(Calendar.DAY_OF_YEAR) > 365;
+            if(isLeapYear) {
+                if(calendar.get(Calendar.DAY_OF_MONTH) == 29) {
+                    calendar.set(Calendar.DAY_OF_MONTH, 1);
+                    return getNextMonth(calendar);
+                }else {
+                    calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH)+1);
+                }
+            }else {
+                if(calendar.get(Calendar.DAY_OF_MONTH) == 28) {
+                    calendar.set(Calendar.DAY_OF_MONTH, 1);
+                    return getNextMonth(calendar);
+                }else {
+                    calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH)+1);
+                }
+            }
+        } else {
+            //30 days in each.
+            if(calendar.get(Calendar.DAY_OF_MONTH)==30) {
+                calendar.set(Calendar.DAY_OF_MONTH, 1);
+                return getNextMonth(calendar);
+            }else {
+                calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH)+1);
+            }
+        }
+        return calendar;
+    }
+
+    public Calendar getNextMonth (Calendar calendar) {
+        if(calendar.get(Calendar.MONTH) == 11) {
+            calendar.set(Calendar.MONTH, 1);
+            return getNextYear(calendar);
+        } else {
+            calendar.set(Calendar.MONTH, calendar.get(Calendar.MONTH)+1);
+        }
+        return calendar;
+    }
+
+    public Calendar getNextYear(Calendar calendar) {
+        calendar.set(Calendar.YEAR, calendar.get(Calendar.YEAR) + 1);
+        return calendar;
     }
 }

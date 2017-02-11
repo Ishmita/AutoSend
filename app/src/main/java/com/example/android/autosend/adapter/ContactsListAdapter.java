@@ -43,6 +43,7 @@ public class ContactsListAdapter extends BaseAdapter implements Filterable{
     private final static String TAG = "contactListAdapter";
 
     public ContactsListAdapter(Context mContext, int resource ,ArrayList contactList){
+        Log.d(TAG, "in contactListAdapter");
         this.mContext = mContext;
         this.contactList = contactList;
         this.resource = resource;
@@ -125,7 +126,7 @@ public class ContactsListAdapter extends BaseAdapter implements Filterable{
         //load and set image for contacts
         Uri my_contact_Uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_URI, String.valueOf(getContactIDFromNumber(contactList.get(i).getNumber(), mContext)));
         filteredList.get(i).setContactPhoto(my_contact_Uri.toString());
-        Log.d(TAG, "uri: "+my_contact_Uri + "saved uri in filteredList: "+filteredList.get(i).getContactPhoto());
+        Log.d(TAG, "uri: "+my_contact_Uri + " saved uri in filteredList: "+filteredList.get(i).getContactPhoto());
         InputStream photo_stream = ContactsContract.Contacts.openContactPhotoInputStream(mContext.getContentResolver(), my_contact_Uri);
         Log.d(TAG, "" + photo_stream);
         BufferedInputStream buf = new BufferedInputStream(photo_stream);

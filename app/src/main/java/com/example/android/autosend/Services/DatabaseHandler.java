@@ -109,7 +109,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             }
 
             if (date != null) {
-                long when = date.getTime();
+                /*long when = date.getTime();
                 int flags = 0;
                 flags |= android.text.format.DateUtils.FORMAT_SHOW_TIME;
                 flags |= android.text.format.DateUtils.FORMAT_SHOW_DATE;
@@ -120,6 +120,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                         when, flags);
                 //Log.d(TAG, "when: " + when+" after adding offset: "+ when +
                         //TimeZone.getDefault().getOffset(when));
+
+                */
+                iso8601Format = new SimpleDateFormat("dd MMM yyyy HH:mm");
+                finalDateTime = iso8601Format.format(date);
             }
         }
         Log.d(TAG, "formatted date: " + finalDateTime);

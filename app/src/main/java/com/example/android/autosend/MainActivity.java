@@ -1,6 +1,7 @@
 package com.example.android.autosend;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -76,7 +77,11 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_feedback) {
+            Intent email = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                    "mailto","developer.autosend@gmail.com", null));
+            email.putExtra(Intent.EXTRA_SUBJECT, "Feedback");
+            startActivity(Intent.createChooser(email, "Send FeedBack:"));
             return true;
         }
 

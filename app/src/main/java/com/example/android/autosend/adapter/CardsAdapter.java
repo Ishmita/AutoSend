@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.provider.ContactsContract;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -297,7 +298,7 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
                                 MY_PERMISSIONS_REQUEST_READ_CONTACTS);
 
                     }else {
-                        new FetchContactsTask().execute();
+                            new FetchContactsTask().execute();
                     }
                 }else if(position == 1){
                     Intent msgIntent = new Intent(mContext,TypeMessage.class);
@@ -361,6 +362,7 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
     }
 
     public void fetchContacts(){
+        Log.d(TAG, "in fetchContacts()");
         Uri uri = ContactsContract.Contacts.CONTENT_URI;
         ContentResolver contentResolver = mContext.getContentResolver();
         //Cursor cursor = contentResolver.query(uri, null, null, null, null, null);
@@ -392,8 +394,10 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
 
     public void showContactDialog(){
         newSelection = true;
+        Log.d(TAG, "in showContactDialog");
         final Dialog contactListDialog = new Dialog(mContext, R.style.MyDialogTheme);
         contactListDialog.setContentView(R.layout.contact_list_dialog);
+        contactListDialog.setTitle("Select Contacts");
         contactListDialog.setCancelable(true);
         final ListView contactListView = (ListView)contactListDialog.findViewById(R.id.contacts_list_view);
         final ContactsListAdapter adapter = new ContactsListAdapter(mContext, R.layout.contact, alContacts);
@@ -504,9 +508,10 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
                 return true;
             }
         });
-        contactListDialog.setTitle("Select Contacts");
+
         Window window = contactListDialog.getWindow();
         window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+        Log.d(TAG, "just before showing contacts dialog");
         contactListDialog.show();
         ok.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -567,6 +572,7 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
 
         @Override
         protected Void doInBackground(Void... params) {
+            Log.d(TAG, "in doInBackground");
             fetchContacts();
             return null;
         }
@@ -574,6 +580,7 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
+            Log.d(TAG, "in on PostExecute");
             showContactDialog();
             spinner.setVisibility(View.GONE);
             progressBarDialog.dismiss();
@@ -703,8 +710,6 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
                     //Saving alarm in database
                     id = (int) databaseHandler.saveAlarm(alarm);
                     alarm.setId(id);
-                    Log.d(TAG, "contact uri just before saving: " + contact.getContactPhoto() +
-                            " alarm uri: " + alarm.getContactPhotoURI());
                     Calendar now = Calendar.getInstance();
                     if (calendar.compareTo(now) <= 0) {
                         Toast.makeText(mContext, "Invalid date", Toast.LENGTH_LONG).show();
@@ -719,14 +724,6 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
                 //tell the viewPager to refresh pages.
                 MainActivity.mViewPager.getAdapter().notifyDataSetChanged();
 
-            List<Alarm> alarms = databaseHandler.getAllAlarms();
-            for (Alarm alarm1 : alarms) {
-                Log.d(TAG, "alarmId: " + alarm1.getId() + " title: " + alarm1.getAlarmTitle() +
-                        " contactName: " + alarm1.getContactName() +
-                        " date: " + alarm1.getDate() + " msg: " + alarm1.getMessage() +
-                        " number: " + alarm1.getContactNumber() +
-                        " photo uri: " + alarm1.getContactPhotoURI());
-            }
             }
         }else{
             Toast.makeText(mContext, "Please specify all details", Toast.LENGTH_SHORT).show();
