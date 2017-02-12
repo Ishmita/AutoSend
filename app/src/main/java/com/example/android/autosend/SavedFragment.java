@@ -168,12 +168,6 @@ public class SavedFragment extends Fragment implements MainActivity.Updateable{
     @Override
     public void update() {
         Log.d(TAG, "update of SavedFragment called!");
-        /*savedAlarms.clear();
-        savedAlarms.addAll(databaseHandler.getAllAlarms());
-        adapter.notifyDataSetChanged();
-        //adapter = new AlarmsAdapter(getContext(), savedAlarms, R.layout.alarm_list_item);
-        //savedAlarmsListView.setAdapter(adapter);
-        */
         prepareList();
     }
 }

@@ -19,14 +19,9 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
     private static final String TAG = "AlarmReceiver";
     @Override
     public void onReceive(Context context, Intent intent) {
-        Toast.makeText(context, "Alarm!!", Toast.LENGTH_LONG).show();
         Log.d(TAG, "alarm received");
         int id = intent.getIntExtra("id", -1);
         Log.d(TAG, "id: "+id);
-        //ComponentName componentName = new ComponentName(context.getPackageName(),
-        //        MessageSendService.class.getName());
-        //startWakefulService(context, (intent.setComponent(componentName)));
-        //setResultCode(Activity.RESULT_OK);
         Intent intent1 = new Intent(context, MessageSendService.class);
         intent1.putExtra("id", id);
         context.startService(intent1);

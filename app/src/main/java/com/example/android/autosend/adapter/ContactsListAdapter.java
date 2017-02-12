@@ -156,7 +156,4 @@ public class ContactsListAdapter extends BaseAdapter implements Filterable{
     public ArrayList<Contact> getFilteredList() {
         return filteredList;
     }
-
-
-
 }

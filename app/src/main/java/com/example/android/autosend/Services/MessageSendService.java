@@ -43,9 +43,9 @@ public class MessageSendService extends IntentService {
                     Log.d(TAG, "no permission");
 
                 } else {
-                    //sendMessage();
+                    sendMessage();
                     //for testing only, remove later
-                    updateStatus();
+                    //updateStatus();
                 }
             }
         }

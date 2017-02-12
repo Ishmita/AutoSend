@@ -38,16 +38,6 @@ public class TypeMessage extends AppCompatActivity {
         Drawable upArrow = ContextCompat.getDrawable(this, R.drawable.arrow);
         upArrow.setColorFilter(ContextCompat.getColor(this, android.R.color.white), PorterDuff.Mode.SRC_ATOP);
         getSupportActionBar().setHomeAsUpIndicator(upArrow);
-
-        /*Window window = getWindow();
-        // clear FLAG_TRANSLUCENT_STATUS flag:
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        // finally change the color
-        window.setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
-        */
-        //in-case the user selects to edit the message.
         Intent intent = getIntent();
         String msg = intent.getStringExtra("previousMsg");
         if(msg!=null && msg.length()>0) {

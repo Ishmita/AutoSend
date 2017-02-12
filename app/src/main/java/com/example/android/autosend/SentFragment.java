@@ -40,10 +40,10 @@ public class SentFragment extends Fragment implements MainActivity.Updateable {
     private static final String ARG_SECTION_NUMBER = "section_number";
     private static final String TAG = "SentFragment";
     ListView done, toDo;
-    ArrayList<Alarm> allAlarms, doneAlarms, toDoAlarms;
+    ArrayList<Alarm> allAlarms, doneAlarms;
     DatabaseHandler databaseHandler;
-    AlarmsAdapter doneAdapter, toDoAdapter;
-    TextView sent, toSend;
+    AlarmsAdapter doneAdapter;
+    TextView sent;
     int position;
     Alarm alarm;
 
@@ -66,9 +66,7 @@ public class SentFragment extends Fragment implements MainActivity.Updateable {
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_sent, container, false);
         done = (ListView)view.findViewById(R.id.alarms_done_list_view);
-        //toDo = (ListView)view.findViewById(R.id.alarms_to_do_list_view);
         sent = (TextView)view.findViewById(R.id.sent_msgs_tag);
-        //toSend = (TextView)view.findViewById(R.id.to_send_tag);
         databaseHandler = new DatabaseHandler(getContext());
         ArrayList<Alarm> alarms = databaseHandler.getAllAlarms();
         for(Alarm alarm1: alarms) {
@@ -77,12 +75,8 @@ public class SentFragment extends Fragment implements MainActivity.Updateable {
                     " date: " + alarm1.getDate());
         }
         doneAlarms = new ArrayList<Alarm>();
-        //toDoAlarms = new ArrayList<>();
-        //allAlarms = new ArrayList<>();
         doneAdapter = new AlarmsAdapter(getContext(), doneAlarms, R.layout.alarm_list_item);
-        //toDoAdapter = new AlarmsAdapter(getContext(), toDoAlarms, R.layout.alarm_list_item);
         done.setAdapter(doneAdapter);
-        //toDo.setAdapter(toDoAdapter);
         prepareLists();
         done.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
@@ -160,12 +154,9 @@ public class SentFragment extends Fragment implements MainActivity.Updateable {
                 doneAlarms.add(a);
                 Log.d(TAG, "doneAlarmsList item: "+a.getContactName()+" date: "+a.getDate());
             }else {
-                //toDoAlarms.add(a);
                 Log.d(TAG, "toDoAlarmsList item: "+a.getContactName()+" date: "+a.getDate());
             }
-            //setListViewHeightBasedOnChildren(done);
             doneAdapter.notifyDataSetChanged();
-            //toDoAdapter.notifyDataSetChanged();
         }
 
         if(doneAlarms.size() == 0) {
@@ -173,35 +164,10 @@ public class SentFragment extends Fragment implements MainActivity.Updateable {
         }else {
             sent.setVisibility(View.GONE);
         }
-        //if(toDoAlarms.size()>0) {
-        //    toSend.setVisibility(View.VISIBLE);
-        //}
-
     }
 
     @Override
     public void update() {
         prepareLists();
     }
-/*
-    public static void setListViewHeightBasedOnChildren(ListView listView) {
-        AlarmsAdapter adapter = (AlarmsAdapter) listView.getAdapter();
-        if (adapter == null) {
-            // pre-condition
-            return;
-        }
-
-        int totalHeight = 0;
-        for (int i = 0; i < adapter.getCount(); i++) {
-            View listItem = adapter.getView(i, null, listView);
-            listItem.measure(0, 0);
-            totalHeight += listItem.getMeasuredHeight();
-        }
-
-        ViewGroup.LayoutParams params = listView.getLayoutParams();
-        params.height = totalHeight + (listView.getDividerHeight() * (adapter.getCount() - 1));
-        listView.setLayoutParams(params);
-        listView.requestLayout();
-    }*/
-
 }

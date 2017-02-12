@@ -92,12 +92,9 @@ public class AlarmService {
         Calendar now = Calendar.getInstance();
 
         if (calendar.compareTo(now) <= 0) {
-            //    Log.d(TAG, "inside if!");
             switch (alarm.getRepeatType()) {
                 case 1:
                     repeatType = Calendar.HOUR_OF_DAY;
-                    //calendar.set(year, month, date, hour + 1, min, 0);
-                    //hour++;
                     calendar = getNextHour(calendar);
                     calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
                             calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY),
@@ -105,20 +102,14 @@ public class AlarmService {
                     break;
                 case 2:
                     repeatType = Calendar.DAY_OF_YEAR;
-                    //calendar.set(year, month, date + 1, hour, min, 0);
-                    //date++;
                     calendar = getNextDay(calendar);
                     break;
                 case 3:
                     repeatType = Calendar.MONTH;
-                    //calendar.set(year, month + 1, date, hour, min, 0);
-                    //month++;
                     calendar = getNextMonth(calendar);
                     break;
                 case 4:
                     repeatType = Calendar.YEAR;
-                    //calendar.set(year + 1, month, date, hour, min, 0);
-                    //year++;
                     calendar = getNextYear(calendar);
                     break;
                 default:
@@ -127,7 +118,6 @@ public class AlarmService {
             }
         }
 
-            //newDate.add(repeatType, 0);
             AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             am.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
                     getPendingIntent(context, alarm.getId()));
@@ -143,11 +133,6 @@ public class AlarmService {
             Log.d(TAG, "new date: " + alarm.getDate());
 
     }
-
-    //public Calendar getDateForRepeat(Alarm alarm) {
-
-    //    return calendar;
-    //}
 
     public String getMonth(String month) {
             if(month.equals("Jan"))

@@ -121,17 +121,6 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.contacts_card, parent, false);
         final MyViewHolder myViewHolder = new MyViewHolder(view);
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(mCurrentTooltip!=null) {
-                    mCurrentTooltip.hide();
-                    mCurrentTooltip = null;
-                }else {
-                    //showTooltip(myViewHolder);
-                }
-            }
-        });
         return myViewHolder;
     }
 
@@ -195,86 +184,6 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
                 })
                 .show();
 
-        //tooltipPosition = position + 1;
-        //showTooltip(holder, "", 0);
-
-        /*ShowcaseConfig config = new ShowcaseConfig();
-        config.setDelay(2000);
-
-        final MaterialShowcaseSequence sequence = new MaterialShowcaseSequence((Activity)mContext,"2");
-        sequence.setConfig(config);
-        sequence.setOnItemDismissedListener(new MaterialShowcaseSequence.OnSequenceItemDismissedListener() {
-            @Override
-            public void onDismiss(MaterialShowcaseView materialShowcaseView, int i) {
-
-            }
-        });
-        if(position == 0) {
-            //sequence.addSequenceItem(
-            new MaterialShowcaseView.Builder((Activity) mContext)
-                    .setTarget(holder.image)
-                    .setDismissText("GOT IT")
-                    .setContentText("This is contacts")
-                    .withCircleShape()
-                    .setListener(new IShowcaseListener() {
-                        @Override
-                        public void onShowcaseDisplayed(MaterialShowcaseView materialShowcaseView) {
-
-                        }
-
-                        @Override
-                        public void onShowcaseDismissed(MaterialShowcaseView materialShowcaseView) {
-                            if (position == 1) {
-                                new MaterialShowcaseView.Builder((Activity) mContext)
-                                        .setTarget(holder.image)
-                                        .setDismissText("GOT IT")
-                                        .setContentText("This is message")
-                                        .withCircleShape()
-                                        .setDelay(200)
-                                        .show();
-                            }
-                            Log.d(TAG, "dismissed");
-                        }
-                    })
-                    .show();
-            //);
-        }
-        }else if(position == 1) {
-            //Contacts cards is clicked, so show tooltip on Message card
-            //showTooltip(holder, "tooltip position 1" ,9);
-            sequence.addSequenceItem(
-                    new MaterialShowcaseView.Builder((Activity)mContext)
-                            .setTarget(holder.image)
-                            .setDismissText("GOT IT")
-                            .setContentText("This is message")
-                            .withCircleShape()
-                            .setDelay(10000)
-                            .build()
-            );
-        }else if(position == 2) {
-            //showTooltip(holder, "tooltip position 2", 8);
-            sequence.addSequenceItem(
-                    new MaterialShowcaseView.Builder((Activity)mContext)
-                            .setTarget(holder.image)
-                            .setDismissText("GOT IT")
-                            .setContentText("This is date")
-                            .withCircleShape()
-                            .setDelay(20000)
-                            .build()
-            );
-        }else if(position == 3) {
-            //showTooltip(holder, "tooltip position 3", 9);
-            sequence.addSequenceItem(
-                    new MaterialShowcaseView.Builder((Activity)mContext)
-                            .setTarget(holder.image)
-                            .setDismissText("GOT IT")
-                            .setContentText("This is send")
-                            .setDelay(30000)
-                            .withCircleShape()
-                            .build()
-            );
-        }
-        sequence.start();*/
         holder.actionButton.setText(createEntry.getActionButton());
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -282,13 +191,6 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
 
                 if (position == 0) {
                     holder.actionButton.setVisibility(View.VISIBLE);
-                    /*new MaterialShowcaseView.Builder((Activity)mContext)
-                            .setTarget(holder.image)
-                            .setDismissText("GOT IT")
-                            .setContentText("This is some amazing feature you should know about")
-                            .setDelay(500) // optional but starting animations immediately in onCreate can make them choppy
-                            .singleUse("1") // provide a unique ID used to ensure it is only shown once
-                            .show();*/
                     if (ContextCompat.checkSelfPermission(mContext,
                             Manifest.permission.READ_CONTACTS)
                             != PackageManager.PERMISSION_GRANTED) {
@@ -438,61 +340,9 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
                         }
                     }
                 }
-                /*ArrayList<Contact> filteredList = adapter.getFilteredList();
-                if(newSelection){
-                    selectedContacts.clear();
-                }
-                selectedContacts.add(filteredList.get(i));
-                Log.d(TAG, "position: " + (i+1) + "name: " + filteredList.get(i).getContactName()+
-                        " uri: "+filteredList.get(i).getContactPhoto());
-                newSelection = false;*/
+
             }
         });
-        /*contactListView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
-        contactListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
-            @Override
-            public void onItemCheckedStateChanged(ActionMode actionMode, int i, long l, boolean b) {
-                checkedCount = contactListView.getCheckedItemCount();
-                //actionMode.setTitle(checkedCount + " Selected");
-                ArrayList<Contact> filteredList = adapter.getFilteredList();
-                if (b) {
-                    if (newSelection) {
-                        selectedContacts.clear();
-                    }
-                    selectedContacts.add(filteredList.get(i));
-                    Log.d(TAG, "position: " + (i + 1) + "name: " + filteredList.get(i).getContactName() +
-                            " uri: " + filteredList.get(i).getContactPhoto());
-                    newSelection = false;
-                } else {
-                    int index = selectedContacts.indexOf(filteredList.get(i));
-                    if(index!= -1) {
-                        selectedContacts.remove(index);
-                    }
-                }
-            }
-
-            @Override
-            public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
-                //MenuInflater inflater = actionMode.getMenuInflater();
-                //inflater.inflate(R.menu.contextual_menu, menu);
-                return true;
-            }
-
-            @Override
-            public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-                return false;
-            }
-
-            @Override
-            public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
-                return false;
-            }
-
-            @Override
-            public void onDestroyActionMode(ActionMode actionMode) {
-
-            }
-        });*/
 
         SearchView searchView = (SearchView)contactListDialog.findViewById(R.id.searchView);
         searchView.setSubmitButtonEnabled(true);
@@ -658,7 +508,6 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
                     year = datePicker.getYear();
                     Log.d(TAG, "day: " + day + "month: " + month + "year: " + year);
                     viewSwitcher.showNext();
-                    //dateTimeDialog.setTitle("Select Time");
                     count++;
                 }else if(count == 1){
                     timePicker.clearFocus();
@@ -668,7 +517,6 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
                     //get selected time.
                     calendar = Calendar.getInstance();
                     calendar.set(year, month, day, hour, minute, 0);
-                    //viewSwitcher.showNext();
                     dateTimeDialog.dismiss();
                     count = 0;
                 }
@@ -680,7 +528,6 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
     public void saveAlarm() {
         DatabaseHandler databaseHandler = new DatabaseHandler(mContext);
         Log.d(TAG, "title: "+title);
-        //Log.d(TAG, "rows deleted: "+databaseHandler.deleteAllAlarms());
         if(selectedContacts.size()!=0 && message!=null && message.length()>0 && year!=0
                 && month!=-1 && day!=0 && title!=null && title.length()>0) {
 
@@ -887,23 +734,5 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.MyViewHolder
 
     public interface ScrollRecyclerView {
         public void onScrollNeeded();
-    }
-    public void showTooltip(MyViewHolder myViewHolder, String text, long delay) {
-        Tooltip.make( mContext,
-                new Tooltip.Builder(101)
-                        .anchor(myViewHolder.image.findViewById(R.id.card_image), Tooltip.Gravity.BOTTOM)
-                        .closePolicy(new Tooltip.ClosePolicy()
-                                .insidePolicy(true, false)
-                                .outsidePolicy(true, false), 30000)
-                        .activateDelay(800)
-                        .showDelay(300)
-                        .text(text)
-                        .withStyleId(R.style.ToolTipLayoutDefaultStyle)
-                        .maxWidth(500)
-                        .withArrow(true)
-                        .withOverlay(false)
-                        .floatingAnimation(Tooltip.AnimationBuilder.DEFAULT)
-                        .build()
-        ).show();
     }
 }
